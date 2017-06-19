@@ -83,6 +83,17 @@ class OrganizationModel extends VerySimpleModel {
         return $this->created;
     }
 
+    function getDepartment() {
+        return $this->dept_id;
+    }
+
+    function setDepartment($val) {
+        if (!$val)
+            return false;
+        $this->dept_id = $val;
+        return true;
+    }
+
     function check($flag) {
         return 0 !== ($this->status & $flag);
     }

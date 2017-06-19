@@ -282,7 +282,7 @@ class Bootstrap {
         Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
             sprintf('"osTicket Alerts"<%s>', ADMIN_EMAIL));
         //Display generic error to the user
-        Http::response(500, "<b>Fatal Error:</b> Contact system administrator.");
+        Http::response(500, $message . "<b>Fatal Error:</b> Contact system administrator.");
     }
 }
 

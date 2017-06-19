@@ -135,7 +135,7 @@ class Thread {
             $sql.=' AND thread.thread_type='.db_input($type);
 
         $sql.=' GROUP BY thread.id '
-             .' ORDER BY thread.created '.$order;
+             .' ORDER BY thread.id, thread.created '.$order;
 
         $entries = array();
         if(($res=db_query($sql)) && db_num_rows($res)) {
@@ -1104,9 +1104,9 @@ class ThreadEntry {
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
             $poster = (string) $poster;
-		
-				
-		
+
+
+
 
         $sql=' INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type='.db_input($vars['type'])
@@ -1196,6 +1196,40 @@ class ThreadEntry {
 
     function add($vars) {
         return ($entry=self::create($vars))?$entry->getId():0;
+    }
+
+    /*********************************************************************
+        Exibição de horas realizadas
+        Autor: Adryano Almeida <adryanoalf@gmail.com.br>
+        Última modificação: 30/05/2017
+    **********************************************************************/
+
+    function getTotalHoras(){
+      return gmdate('H:i', $this->getTotalHorasUnformated());
+    }
+
+    function getTotalHorasUnformated(){
+      $total = $this->getHorasUnformated(1) + $this->getHorasUnformated(2) + $this->getHorasUnformated(3);
+      return $total;
+    }
+
+    function getHorasUnformated($dia=1){
+      return (date_format(date_create($this->ht[($dia.'saida')]), 'U') - date_format(date_create($this->ht[($dia.'entrada')]), 'U'));
+    }
+
+    function getHoras($dia=1){
+      return gmdate('H:i', $this->getHorasUnformated($dia));
+    }
+
+    function getData($dia=1){
+      return date_format(date_create($this->ht[($dia.'entrada')]), 'd/m/Y');
+    }
+
+    function getHora($dia=1, $inicio=true){
+      $tipo = 'saida';
+      if ($inicio)
+        $tipo = 'entrada';
+      return date_format(date_create($this->ht[($dia.$tipo)]), 'H:i');
     }
 }
 

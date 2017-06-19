@@ -49,9 +49,10 @@ class UsersAjaxAPI extends AjaxController {
                 : '';
 
             $escaped = db_input(strtolower($_REQUEST['q']), false);
-            $sql='SELECT DISTINCT user.id, email.address, name '
+            $sql='SELECT DISTINCT user.id, email.address, user.name, organization.dept_id '
                 .' FROM '.USER_TABLE.' user '
                 .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
+                .' LEFT JOIN '.'`ost_organization`'.' organization ON (organization.id=user.org_id) '
                 .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_type=\'U\' AND entry.object_id = user.id)
                    LEFT JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
                 .' WHERE email.address LIKE \'%'.$escaped.'%\'
@@ -61,7 +62,7 @@ class UsersAjaxAPI extends AjaxController {
                 .' LIMIT '.$limit;
 
             if(($res=db_query($sql)) && db_num_rows($res)){
-                while(list($id,$email,$name)=db_fetch_row($res)) {
+                while(list($id,$email,$name,$dept)=db_fetch_row($res)) {
                     foreach ($users as $i=>$u) {
                         if ($u['email'] == $email) {
                             unset($users[$i]);
@@ -70,7 +71,7 @@ class UsersAjaxAPI extends AjaxController {
                     }
                     $name = Format::htmlchars($name);
                     $users[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
-                        "id" => $id, "/bin/true" => $_REQUEST['q']);
+                        "id" => $id, "dept_id"=>$dept, "/bin/true" => $_REQUEST['q']);
                 }
             }
         }

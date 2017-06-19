@@ -45,6 +45,25 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
                     <th><?php echo __('Account Manager'); ?>:</th>
                     <td><?php echo $org->getAccountManager(); ?>&nbsp;</td>
                 </tr>
+                <tr>
+                    <th><?php echo __('Department'); ?>:</th>
+                    <td><form action="orgs.php" method="get">
+                        <input type="hidden" name="id" value="<?=$org->getId();?>" />
+                        <select name="dept">
+                        <?php
+                            $res = db_query("SELECT `dept_name`, `dept_id` FROM `ost_department`");
+                            $dept = $org->getDepartment();
+
+                            if ($res && db_num_rows($res)) {
+                                while ($row = db_fetch_array($res)) {
+                                    ?>
+                                    <option value="<?=$row['dept_id'];?>" <?=$row['dept_id']==$dept?"selected":"";?>><?=$row['dept_name'];?></option>
+                                    <?php
+                                }
+                            }
+                        ?>
+                    </select> <input type="submit" name="submit" value="Salvar"></form></td>
+                </tr>
             </table>
         </td>
         <td width="50%" style="vertical-align:top">

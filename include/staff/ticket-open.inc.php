@@ -1,6 +1,12 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canCreateTickets()) die('Access Denied');
 $info=array();
+
+if ($user){
+    $dept = db_query("SELECT dept_id FROM ost_organization WHERE id=".$user->getOrgId());
+    $info['deptId'] = db_num_rows($dept)?db_fetch_row($dept)[0]:1;
+}
+
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 if (!$info['topicId'])
@@ -169,7 +175,7 @@ if ($_POST)
                 <?php echo __('Department'); ?>:
             </td>
             <td>
-                <select name="deptId">
+                <select name="deptId" id="deptId">
                     <option value="" selected >&mdash; <?php echo __('Select Department'); ?>&mdash;</option>
                     <?php
                     if($depts=Dept::getDepartments()) {
@@ -427,4 +433,3 @@ $(function() {
     } ?>
 });
 </script>
-

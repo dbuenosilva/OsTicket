@@ -336,6 +336,7 @@ if($ticket->isOverdue())
 <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
 <?php
 $idx = 0;
+$total_horas = 0;
 foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     // Skip core fields shown earlier in the ticket view
     // TODO: Rewrite getAnswers() so that one could write
@@ -406,7 +407,28 @@ $tcount+= $ticket->getNumNotes();
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
                 echo $entry['id']; ?>"><div><?php
-                echo $entry['body']->toHtml(); ?></div></td></tr>
+                echo $entry['body']->toHtml(); ?>
+
+
+                <!-- EXIBINDO HORAS TRABALHADAS -->
+                <?php
+                    $tentry = $ticket->getThreadEntry($entry['id']);
+                    if ($tentry->getTotalHorasUnformated() > 0) {
+                        $total_horas += $tentry->getTotalHorasUnformated();
+                 ?>
+                <div style="font-size: 12px; line-height: 15px; word-spacing: 2px;">
+                  <br /><b>Total de horas realizadas em <?php echo $tentry->getData(1); ?>: <?php echo $tentry->getTotalHoras(); ?></b>
+                  <?php for ($j = 1; $j <= 3; $j++) {
+                          if ($tentry->getHorasUnformated($j) > 0) { ?>
+                    <br />&emsp;- <?php echo $tentry->getHora($j, true); ?> até <?php echo $tentry->getHora($j, false); ?> = <?php echo $tentry->getHoras($j); ?>
+                  <?php } } ?>
+
+                </div>
+                <?php } ?>
+                <!-- FIM DAS HORAS TRABALHADAS -->
+
+
+              </div></td></tr>
             <?php
             if($entry['attachments']
                     && ($tentry = $ticket->getThreadEntry($entry['id']))
@@ -490,7 +512,7 @@ $tcount+= $ticket->getNumNotes();
                         >&mdash; <?php echo __('Do Not Email Reply'); ?> &mdash;</option>
                     </select>
                 </td>
-    
+
             </tr>
             </tbody>
             <?php
@@ -579,46 +601,46 @@ print $response_form->getField('attachments')->render();
 ?>
                 </div>
                 <br>
-                            
+
             </tr>
 
 <tr>
             	<td>
-            		 <label class="left" for="chamado">Chamado cliente</label>    
+            		 <label class="left" for="chamado">Chamado cliente</label>
             	</td>
             	<td>
-			         <input name="chamado" id='chamado' size="30" />  
+			         <input name="chamado" id='chamado' size="30" />
             	</td>
             </tr>
 
-            
+
             <tr>
             	<td>
-            		 <label class="left" for="tipoatende">Tipo de Atendimento</label>    
+            		 <label class="left" for="tipoatende">Tipo de Atendimento</label>
             	</td>
             	<td>
             			<select id="tipoatende" name="tipoatende">
             				<!--<option value="">-- Tipo Atendedimento --</option>-->
-            		<?php 
-            			if($tipoatende <> '0') 
+            		<?php
+            			if($tipoatende <> '0')
             				echo '<option value="'.$tipoatende.'">';
 							echo  $tipoatende;
 							echo '</option>';
 						if($tipoatende == '0')
-							echo "<option value=''>-- Tipo de Atendimento --</option>";	
-		
+							echo "<option value=''>-- Tipo de Atendimento --</option>";
+
 					; ?>
 							<option value=''>-- Tipo de Atendimento --</option>
             				<option value='Remoto'>Remoto</option>
                         	<option value="Presencial">Presencial</option>
 						</select>
-                        
-                   
+
+
                    <font class="error">&nbsp;*&nbsp;<?=$errors['tipoatende'];?>&nbsp;&nbsp;&nbsp;</font>
             	</td>
             </tr>
             <tr>
-            	<td width="120">            
+            	<td width="120">
             		<label for="data" class="left">Data :</label>
             	</td>
             	<td>
@@ -630,7 +652,7 @@ print $response_form->getField('attachments')->render();
             	<td>
             		<label for="1entrada" class="left">1º Entrada:</label>
             	</td>
-            		
+
             		<td>
             		<?php
                 $min=$hr=null;
@@ -639,34 +661,34 @@ print $response_form->getField('attachments')->render();
 
                 echo Misc::timeDropdown($hr, $min, 'hentra');
                 ?>
-                 
+
             	</td>
 
-            	
+
             </tr>
             <tr>
-            	<td width="120">            
+            	<td width="120">
             		<label for="Saida" class="left">1º Saida:</label>
             	</td>
-            	<td>
+            	<td id="hsai1">
 				<input type="hidden" id="hsai" name="hsai" />
-					<?php               
+					<?php
 				$min=$hr=null;
                 if($info['hsai'])
                     list($hr, $min)=explode(':', $info['hsai']);
 
                 echo Misc::timeDropdown($hr, $min, 'hsai');
                 ?>&nbsp;<font class="error">&nbsp;*&nbsp;<?=$errors['hsai'];?>&nbsp;	</font>
-            
+
             	</td>
-            
+
             </tr>
             <tr>
-            	<td width="120">            
+            	<td width="120">
             		<label for="2entrada" class="left">2º Entrada:</label>
             	</td>
             	<td>
-            		
+
             		<?php
                 $min=$hr=null;
                 if($info['hentra2'])
@@ -674,17 +696,17 @@ print $response_form->getField('attachments')->render();
 
                 echo Misc::timeDropdown($hr, $min, 'hentra2');
                 ?>
-                
+
             	</td>
             </tr>
             <tr>
-            	<td width="120">            
+            	<td width="120">
             		<label for="2Saida" class="left">2º Saida:</label>
             	</td>
             	<td>
-            		
-            		
-					<?php               
+
+
+					<?php
 				$min=$hr=null;
                 if($info['hsai2'])
                     list($hr, $min)=explode(':', $info['hsai2']);
@@ -693,14 +715,14 @@ print $response_form->getField('attachments')->render();
                 ?>
             &nbsp;<font class="error">&nbsp;*&nbsp;<?=$errors['hsai2'];?>&nbsp;	</font>
             	</td>
-            
+
             </tr>
              <tr>
-            	<td width="120">            
+            	<td width="120">
             		<label for="3entrada" class="left">3º Entrada:</label>
             	</td>
             	<td>
-            		
+
             		<?php
                 $min=$hr=null;
                 if($info['hentra3'])
@@ -708,17 +730,17 @@ print $response_form->getField('attachments')->render();
 
                 echo Misc::timeDropdown($hr, $min, 'hentra3');
                 ?>
-                
+
             	</td>
             </tr>
                         <tr>
-            	<td width="120">            
+            	<td width="120">
             		<label for="3Saida" class="left">3 ºSaida:</label>
             	</td>
             	<td>
-            		
-            	
-					<?php               
+
+
+					<?php
 				$min=$hr=null;
                 if($info['hsai3'])
                     list($hr, $min)=explode(':', $info['hsai3']);
@@ -727,16 +749,36 @@ print $response_form->getField('attachments')->render();
                 ?>
             &nbsp;<font class="error">&nbsp;*&nbsp;<?=$errors['hsai3'];?>&nbsp;	</font>
             	</td>
-            
+
+            </tr>
+
+            <?php function timeLength($sec)
+            {
+                $s=$sec % 60;
+                $m=(($sec-$s) / 60) % 60;
+                $h=floor($sec / 3600);
+                return $h.":".substr("0".$m,-2);
+            } ?>
+
+            <tr>
+            	<td>&nbsp;Horas deste apontamento:</td>
+                <td><span id="h-apontamento" horas="0">00:00</span></td>
             </tr>
             <tr>
-            	<!--<td>&nbsp;<font class="error">Total de Horas: &nbsp;&nbsp;<span id="resultado"></span>&nbsp;</font></td>-->
+            	<td>&nbsp;Horas já realizadas:</td>
+                <td><span id="h-realizadas" horas="<?=$total_horas;?>"><?=timeLength($total_horas);?></span></td>
             </tr>
+            <tr>
+            	<td>&nbsp;Total de Horas:</td>
+                <td><span id="h-total"><?=timeLength($total_horas);?></span></td>
+            </tr>
+
+
              <tr>
-            	
+
                 <td width="120">
                     <label for="signature" class="left"><?php echo __('Signature');?>:</label>
-                          
+
                 </td>
                 <td>
                     <?php
@@ -787,7 +829,7 @@ print $response_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
-            
+
          </tbody>
         </table>
         <p  style="padding:0 165px;">
@@ -1127,6 +1169,52 @@ print $note_form->getField('attachments')->render();
 </div>
 <script type="text/javascript">
 $(function() {
+
+    String.prototype.getSecs = function() {
+        var hrs = this.split(':')[0];
+        var min = this.split(':')[1];
+        return (hrs * 60 * 60) + (min * 60);
+    }
+    Number.prototype.formatHoras = function() {
+        if (this < 0)
+            return "00:00";
+        var hrs = Math.floor(this/3600);
+        if (hrs < 10)
+            hrs = "0" + hrs;
+        var min = (this/60)%60;
+        if (min < 10)
+            min = "0" + min;
+        return hrs + ":" + min;
+    }
+
+    function atualizaHoras() {
+        var totalh =  0;
+        var thish = 0;
+
+        thish -= $('#hentra').val().getSecs();
+        thish -= $('#hentra2').val().getSecs();
+        thish -= $('#hentra3').val().getSecs();
+        thish += $('#hsai1 select').val().getSecs();
+        thish += $('#hsai2').val().getSecs();
+        thish += $('#hsai3').val().getSecs();
+
+        if (thish < 0)
+            thish = 0;
+        $("#h-apontamento").attr('horas', thish);
+        $("#h-apontamento").html(thish.formatHoras());
+
+        totalh += Number($("#h-realizadas").attr('horas'));
+        totalh += thish;
+        $("#h-total").html(totalh.formatHoras());
+    }
+
+    $('#hentra').on('change', atualizaHoras);
+    $('#hentra2').on('change', atualizaHoras);
+    $('#hentra3').on('change', atualizaHoras);
+    $('#hsai1').on('change', 'select', atualizaHoras);
+    $('#hsai2').on('change', atualizaHoras);
+    $('#hsai3').on('change', atualizaHoras);
+
     $(document).on('click', 'a.change-user', function(e) {
         e.preventDefault();
         var tid = <?php echo $ticket->getOwnerId(); ?>;

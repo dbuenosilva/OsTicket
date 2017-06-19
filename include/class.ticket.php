@@ -1945,10 +1945,10 @@ class Ticket {
 
         if(!$vars['staffId'] && $thisstaff)
             $vars['staffId'] = $thisstaff->getId();
-		
+
 	    if(!$vars['1entrada'] && $thisstaff)
 	        $vars['1entrada'] = $thisstaff;
-		
+
 		if(!$vars['1saida'] && $thisstaff)
 	        $vars['1saida'] = $thisstaff;
 
@@ -1957,8 +1957,37 @@ class Ticket {
 
         if(!($response = $this->getThread()->addResponse($vars, $errors)))
             return null;
-		
-			
+
+        /*** EXIBIR HORAS NO EMAIL DA THREAD ***/
+            function timeLength($sec)
+            {
+                $s=$sec % 60;
+                $m=(($sec-$s) / 60) % 60;
+                $h=floor($sec / 3600);
+                return $h.":".substr("0".$m,-2);
+            }
+
+        $total_horas = 0;
+        foreach($this->getThread()->getTicket()->getThreadEntries(array('M', 'R', 'N')) as $entry) {
+            $tentry = $this->getThread()->getTicket()->getThreadEntry($entry['id']);
+            if ($tentry->getTotalHorasUnformated() > 0)
+                $total_horas += $tentry->getTotalHorasUnformated();
+        }
+
+
+        $addon = '<div style="font-size: 12px; line-height: 15px; word-spacing: 2px;">
+            <br /><b>Total de horas realizadas em ' . $response->getData(1) . ': ' . $response->getTotalHoras() . '</b>';
+        for ($j = 1; $j <= 3; $j++) {
+            if ($response->getHorasUnformated($j) > 0) {
+                $addon .= '<br />&emsp;- ' . $response->getHora($j, true) . ' até ' . $response->getHora($j, false) . ' = ' . $response->getHoras($j);
+            }
+        }
+        $addon .= '<br /><br /><b>Total de horas já realizadas nesta Tarefa: ' . timeLength($total_horas) . ' </b>';
+        $addon .='</div>';
+
+        $response->ht['body'] .= $addon;
+        /*** FIM DA EXIBIÇÃO DAS HORAS NO EMAIL DA THREAD ***/
+
         $assignee = $this->getStaff();
         // Set status - if checked.
         if ($vars['reply_status_id']
@@ -2616,6 +2645,20 @@ class Ticket {
             // account created or detected
             if (!$user && $vars['email'])
                 $user = User::lookupByEmail($vars['email']);
+
+                if ((strtolower($origin) == 'email' || strtolower($origin) == 'web') && !$vars['deptId'] && $user) {
+                    if ($user->getOrgId()) {
+                        $dept = db_query("SELECT dept_id FROM ost_organization WHERE id=".$user->getOrgId());
+                        if (db_num_rows($dept) > 0) {
+                            $t = db_fetch_row($dept);
+                            $vars['deptId'] = $t[0];
+                        }
+                    }
+                }
+
+                //if (strtolower($origin) == 'email'){
+                //    $vars['subject'] .= " [".$origin."]";
+                //}
 
             if (!$user) {
                 // Reject emails if not from registered clients (if
