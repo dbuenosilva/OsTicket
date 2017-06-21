@@ -11,7 +11,7 @@
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
     See LICENSE.TXT for details.
 
-    vim: expandtab sw=4 ts=4 sts=4:
+    vim: expandtab sw=4 ts=4 sts=4: Diego
 **********************************************************************/
 
 require('client.inc.php');
