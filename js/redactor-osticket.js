@@ -22,7 +22,7 @@ RedactorPlugins.draft = {
         if (this.opts.draftObjectId)
             autosave_url += '.' + this.opts.draftObjectId;
         this.opts.autosave = autosave_url;
-        this.opts.autosaveInterval = 10;
+        this.opts.autosaveInterval = 3600;
         this.opts.autosaveCallback = this.setupDraftUpdate;
         this.opts.initCallback = this.recoverDraft;
 
@@ -313,8 +313,8 @@ $(document).ajaxError(function(event, request, settings) {
                 clearInterval(redactor.autosaveInterval);
             }
         });
-        $('#overlay').show();
-        alert(__('Unable to save draft. Refresh the current page to restore and continue your draft.'));
-        $('#overlay').hide();
+        //$('#overlay').show();
+        //alert(__('Unable to save draft. Refresh the current page to restore and continue your draft.'));
+        //$('#overlay').hide();
     }
 });
