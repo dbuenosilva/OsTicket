@@ -39,10 +39,10 @@ define('ADMIN_EMAIL','diego@gwaya.com.br');
 # ---------------------------------------------------
 # Mysql Login info
 define('DBTYPE','mysql');
-define('DBHOST','mysql.gwaya.com.br');
-define('DBNAME','gwaya06');
-define('DBUSER','gwaya06');
-define('DBPASS','Mm433p419');
+define('DBHOST','host');
+define('DBNAME','dbname');
+define('DBUSER','user');
+define('DBPASS','password');
 
 # Table prefix
 define('TABLE_PREFIX','ost_');
